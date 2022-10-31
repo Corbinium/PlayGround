@@ -175,6 +175,88 @@ def iterativeHeapSort(arr):
     print("Sorted list:\t",arr)
     print("Passes:", passes, "\tComparisons:", comps)
 
+# Counting Sort
+def countingSort(arr):
+    passes=0
+    comps=0
+    arrOut = [0 for i in range(len(arr))]
+    count = [0 for i in range(100)]
+    for v in arr:
+        passes+=1
+        count[v] += 1
+    for p in range(len(count)):
+        passes+=1
+        count[p] += count[p-1]
+    for o in range(len(arr)):
+        passes+=1
+        arrOut[count[arr[o]]-1] = arr[o]
+        count[arr[o]] -= 1
+    print("Sorted list:\t",arrOut)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Radix Sort
+def radixSort(arr):
+    passes=0
+    comps=0
+    def radixCountSort(arr, exp):
+        nonlocal passes
+        arrOut = [0]*len(arr)
+        count = [0]*(10)
+        for v in arr:
+            passes+=1
+            count[(v//exp)%10] +=1
+        for p in range(1,10):
+            passes+=1
+            count[p] += count[p-1]
+        for c in range((len(arr)-1), -1, -1):
+            passes+=1
+            t = ((arr[c]//exp)%10)
+            arrOut[count[t]-1] = arr[c]
+            count[t] -= 1
+        for i in range(len(arr)):
+            arr[i] = arrOut[i]
+    
+    maxVal = max(arr)
+    exp = 1
+    while exp <= maxVal:
+        radixCountSort(arr, exp)
+        exp *= 10
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Bucket Sort
+def bucketSort(arr):
+    passes=0
+    comps=0
+    def insertion(arr):
+        nonlocal comps
+        nonlocal passes
+        for i in range(1, len(arr)):
+            passes+=1
+            j = i-1
+            while j >= 0 and arr[i] < arr[j]:
+                comps+=1
+                arr[i], arr[j] = arr[j], arr[i]
+    
+    bucket = []
+    slot = 10
+    for c in range(slot):
+        bucket.append([])
+    for v in arr:
+        passes+=1
+        index = v//10
+        bucket[index].append(v)
+    for p in range(slot):
+        insertion(bucket[p])
+    x=0
+    for i in range(slot):
+        for j in range(len(bucket[i])):
+            arr[x] = bucket[i][j]
+            x+=1
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+
 
 
 
@@ -197,5 +279,14 @@ def iterativeHeapSort(arr):
 # print("\nHeap Sort")
 # heapSort(arr.copy())
 
-print("\nIterative Heap Sort")
-iterativeHeapSort(arr.copy())
+# print("\nIterative Heap Sort")
+# iterativeHeapSort(arr.copy())
+
+# print("\nCounting Sort")
+# countingSort(arr.copy())
+
+# print("\nRadix Sort")
+# radixSort(arr.copy())
+
+print("\nBucket Sort")
+bucketSort(arr.copy())
