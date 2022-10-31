@@ -91,7 +91,7 @@ def MergeSort(arr):
     print("Sorted list:\t",arr)
     print("Passes:", mergePasses, "\tComparisons:", mergeComps)
 
-#Quick Sort
+# Quick Sort
 def quickSort(arr):
     passes=0
     comps=0
@@ -256,7 +256,117 @@ def bucketSort(arr):
     print("Sorted list:\t",arr)
     print("Passes:", passes, "\tComparisons:", comps)
 
+# Shell Sort
+def shellSort(arr):
+    passes=0
+    comps=0
+    gap = len(arr)//2
+    while gap > 0:
+        for i in range(gap, len(arr)):
+            passes+=1
+            temp = arr[i]
+            j = i
+            while (j >= gap and arr[j-gap] > temp):
+                comps+=1
+                arr[j] = arr[j-gap]
+                j -= gap
+            arr[j] = temp
+        gap = gap//2
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
 
+# Cocktail Shaker Sort
+def cocktailSort(arr):
+    passes=0
+    comps=0
+    sorting = True
+    while(sorting):
+        passes+=1
+        sorting = False
+        for i in range(0, len(arr)-1):
+            comps+=2
+            if (arr[i] > arr[i+1]):
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                sorting = True
+            t = len(arr)-i
+            if (arr[t-2] > arr[t-1]):
+                arr[t-2], arr[t-1] = arr[t-1], arr[t-2]
+                sorting = True
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Odd Even Sort
+def oddEvenSort(arr):
+    passes=0
+    comps=0
+    swapping = True
+    while(swapping):
+        passes+=1
+        swapping = False
+        for i in range(0, len(arr)-1, 2):
+            comps+=1
+            if (arr[i] > arr[i+1]): 
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapping = True
+        for i in range(1, len(arr)-1, 2):
+            comps+=1
+            if (arr[i] > arr[i+1]):
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapping = True
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Gnome Sort
+def gnomeSort(arr):
+    passes=0
+    comps=0
+    pos = 0
+    while (pos < len(arr)):
+        passes+=1
+        if (pos == 0 or arr[pos] >= arr[pos-1]):
+            pos+=1
+        else:
+            comps+=1
+            arr[pos], arr[pos-1] = arr[pos-1], arr[pos]
+            pos-=1
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Tree Sort
+def treeSort(arr):
+    passes=0
+    comps=0
+    root = None
+    arrOut = []
+    class Node:
+        def __init__(self, item=0):
+            self.key = item
+            self.left,self.right = None,None
+    
+    def buildTree(key, root):
+        nonlocal comps
+        comps+=1
+        if (root == None): return Node(key)
+        elif(key < root.key): root.left = buildTree(key, root.left)
+        else: root.right = buildTree(key, root.right)
+        return root
+    
+    def readTree(root):
+        nonlocal arrOut
+        nonlocal passes
+        passes+=1
+        if (root != None):
+            readTree(root.left)
+            arrOut.append(root.key)
+            readTree(root.right)
+
+    for v in arr:
+        root = buildTree(v, root)
+    readTree(root)
+    arr = arrOut
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+        
 
 
 
@@ -288,5 +398,20 @@ def bucketSort(arr):
 # print("\nRadix Sort")
 # radixSort(arr.copy())
 
-print("\nBucket Sort")
-bucketSort(arr.copy())
+# print("\nBucket Sort")
+# bucketSort(arr.copy())
+
+# print("\nShell Sort")
+# shellSort(arr.copy())
+
+# print("\nCocktail Sort")
+# cocktailSort(arr.copy())
+
+# print("\nOdd Even Sort")
+# oddEvenSort(arr.copy())
+
+# print("\nGnome Sort")
+# gnomeSort(arr.copy())
+
+print("\nTree Sort")
+treeSort(arr.copy())
