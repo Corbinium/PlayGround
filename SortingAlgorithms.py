@@ -1,7 +1,7 @@
 import sys
 import numpy
 
-arr = [7, 6, 5, 4, 3, 2, 1]
+arr = [61, 66, 63, 42, 41, 16, 19, 1, 3, 2]
 arr = []
 random = numpy.random.randint(0,100,7)
 for i in range(0, len(random)): arr.append(random[i])
@@ -367,6 +367,179 @@ def treeSort(arr):
     print("Sorted list:\t",arr)
     print("Passes:", passes, "\tComparisons:", comps)
         
+# Cycle Sort
+def cycleSort(arr):
+    passes=0
+    comps=0
+    for start in range(len(arr)-1):
+        active = arr[start]
+        pos = start
+        for i in range(start+1, len(arr)):
+            comps+=1
+            if (arr[i] < active): pos += 1
+        if (pos != start):
+            while(arr[pos] == active): pos += 1
+            passes+=1
+            arr[pos], active = active, arr[pos]
+            while pos != start:
+                pos = start
+                for i in range(start+1, len(arr)):
+                    comps+=1
+                    if (arr[i] < active): pos += 1
+                while (arr[pos] == active): pos += 1
+                passes+=1
+                arr[pos], active = active, arr[pos]
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Patience Sort
+def patienceSort(arr):
+    passes=0
+    comps=0
+    piles = []
+    for i in range(len(arr)):
+        passes+=1
+        if (len(piles) == 0):
+            temp = []
+            temp.append(arr[i])
+            piles.append(temp)
+        else:
+            highest = True
+            for j in range(len(piles)):
+                comps+=1
+                if (arr[i] < piles[j][len(piles[j])-1]):
+                    piles[j].append(arr[i])
+                    highest = False
+                    break
+            if (highest):
+                temp = []
+                temp.append(arr[i])
+                piles.append(temp)
+    for m in range(len(arr)):
+        passes+=1
+        lowest = 0
+        for t in range(len(piles)):
+            comps+=1
+            if (len(piles[t]) > 0):
+                if (piles[t][len(piles[t])-1] < piles[lowest][len(piles[lowest])-1]): lowest = t
+        arr[m] = piles[lowest][len(piles[lowest])-1]
+        del piles[lowest][len(piles[lowest])-1]
+        if (len(piles[lowest]) == 0): del piles[lowest]
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Strand Sort
+def strandSort(arr):
+    passes=0
+    comps=0
+    sort = []
+    def strand(arr, sort):
+        nonlocal passes
+        nonlocal comps
+        passes+=1
+        arrSub = [arr.pop(0)]
+        pos = 0
+        while (pos < len(arr)):
+            comps+=1
+            if (arr[pos] > arrSub[len(arrSub)-1]): arrSub.append(arr.pop(pos))
+            pos += 1
+        if (len(sort) == 0): sort.extend(arrSub)
+        else:
+            while (len(arrSub) > 0):
+                val = arrSub.pop(0)
+                for i in range(len(sort)):
+                    comps+=1
+                    if (sort[i] > val): sort.insert(i,val); break
+                else: sort.append(val)
+        if (len(arr) > 0): strand(arr, sort)
+
+    strand(arr, sort)
+    arr = sort
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Comb Sort
+def combSort(arr):
+    passes=0
+    comps=0
+    gap = len(arr)
+    unsorted = True
+    while (gap != 1 or unsorted):
+        passes+=1
+        gap = int((gap*10)/13)
+        if (gap < 1): gap = 1
+        unsorted = False
+        for i in range(len(arr)-gap):
+            comps+=1
+            if (arr[i] > arr[i+gap]):
+                arr[i], arr[i+gap] = arr[i+gap], arr[i]
+                unsorted = True
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Pigeon Hole Sort
+def pigeonHoleSort(arr):
+    passes=0
+    comps=0
+    arrMin = min(arr)
+    arrMax = max(arr)
+    arrRange = (arrMax-arrMin)+1
+    values = [0]*arrRange
+    for v in arr: values[v-arrMin] += 1; passes+=1
+    m = 0
+    for i in range(len(values)):
+        comps+=1
+        while (values[i] > 0): 
+            comps+=1
+            arr[m] = i+arrMin
+            values[i] -= 1
+            m += 1
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
+
+# Postman Sort
+def postManSort(arr):
+    passes=0
+    comps=0
+    sig = 1
+    def sortSig(arr, sig):
+        nonlocal passes
+        nonlocal comps
+        passes+=1
+        sepArr = []
+        for val in arr:
+            isHighest = True
+            pos = 0
+            while (isHighest and pos < len(sepArr)):
+                comps+=1
+                if (sepArr[pos][0]//sig == val//sig):
+                    sepArr[pos].append(val)
+                    isHighest = False
+                if (sepArr[pos][0]//sig > val//sig): 
+                    sepArr.insert(pos,[])
+                    sepArr[pos].append(val)
+                    isHighest = False
+                pos+=1
+            if (isHighest): 
+                sepArr.append([])
+                sepArr[len(sepArr)-1].append(val)
+        arr = []
+        for i in range(len(sepArr)): 
+            if (sig > 1):
+                sepArr[i] = sortSig(sepArr[i], sig//10)
+                arr.extend(sepArr[i])
+            else:
+                arr.extend(sepArr[i])
+        return arr
+
+    for val in arr: 
+        digits = 1
+        while (val/digits > 10):
+            digits *= 10
+        if (digits > sig): sig = digits
+    arr = sortSig(arr, sig)
+    print("Sorted list:\t",arr)
+    print("Passes:", passes, "\tComparisons:", comps)
 
 
 
@@ -413,5 +586,23 @@ def treeSort(arr):
 # print("\nGnome Sort")
 # gnomeSort(arr.copy())
 
-print("\nTree Sort")
-treeSort(arr.copy())
+# print("\nTree Sort")
+# treeSort(arr.copy())
+
+# print("\nCycle Sort")
+# cycleSort(arr.copy())
+
+# print("\nPatience Sort")
+# patienceSort(arr.copy())
+
+# print("\nStrand Sort")
+# strandSort(arr.copy())
+
+# print("\nComb Sort")
+# combSort(arr.copy())
+
+# print("\nPigeon Hole Sort")
+# pigeonHoleSort(arr.copy())
+
+print("\nPostman Sort")
+postManSort(arr.copy())
