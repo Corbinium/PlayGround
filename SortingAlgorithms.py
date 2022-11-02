@@ -49,7 +49,6 @@ def insertionSort(arr):
             comps+=1
             if (arr[j] < arr[j-1]): arr[j], arr[j-1] = arr[j-1], arr[j]
             else: break
-        print(arr)
     print("Sorted list:\t",arr)
     print("Passes:", passes, "\tComparisons:", comps)
 
@@ -544,65 +543,65 @@ def postManSort(arr):
 
 
 #################################################################################
-# print("\nSelection Sort")
-# selectionSort(arr.copy())
+print("\nSelection Sort")
+selectionSort(arr.copy())
 
-# print("\nBubble Sort")
-# bubbleSort(arr.copy())
+print("\nBubble Sort")
+bubbleSort(arr.copy())
 
-# print("\nInsertion Sort")
-# insertionSort(arr.copy())
+print("\nInsertion Sort")
+insertionSort(arr.copy())
 
-# print("\nMerge Sort")
-# MergeSort(arr.copy())
+print("\nMerge Sort")
+MergeSort(arr.copy())
 
-# print("\nQuick Sort")
-# quickSort(arr.copy())
+print("\nQuick Sort")
+quickSort(arr.copy())
 
-# print("\nHeap Sort")
-# heapSort(arr.copy())
+print("\nHeap Sort")
+heapSort(arr.copy())
 
-# print("\nIterative Heap Sort")
-# iterativeHeapSort(arr.copy())
+print("\nIterative Heap Sort")
+iterativeHeapSort(arr.copy())
 
-# print("\nCounting Sort")
-# countingSort(arr.copy())
+print("\nCounting Sort")
+countingSort(arr.copy())
 
-# print("\nRadix Sort")
-# radixSort(arr.copy())
+print("\nRadix Sort")
+radixSort(arr.copy())
 
-# print("\nBucket Sort")
-# bucketSort(arr.copy())
+print("\nBucket Sort")
+bucketSort(arr.copy())
 
-# print("\nShell Sort")
-# shellSort(arr.copy())
+print("\nShell Sort")
+shellSort(arr.copy())
 
-# print("\nCocktail Sort")
-# cocktailSort(arr.copy())
+print("\nCocktail Sort")
+cocktailSort(arr.copy())
 
-# print("\nOdd Even Sort")
-# oddEvenSort(arr.copy())
+print("\nOdd Even Sort")
+oddEvenSort(arr.copy())
 
-# print("\nGnome Sort")
-# gnomeSort(arr.copy())
+print("\nGnome Sort")
+gnomeSort(arr.copy())
 
-# print("\nTree Sort")
-# treeSort(arr.copy())
+print("\nTree Sort")
+treeSort(arr.copy())
 
-# print("\nCycle Sort")
-# cycleSort(arr.copy())
+print("\nCycle Sort")
+cycleSort(arr.copy())
 
-# print("\nPatience Sort")
-# patienceSort(arr.copy())
+print("\nPatience Sort")
+patienceSort(arr.copy())
 
-# print("\nStrand Sort")
-# strandSort(arr.copy())
+print("\nStrand Sort")
+strandSort(arr.copy())
 
-# print("\nComb Sort")
-# combSort(arr.copy())
+print("\nComb Sort")
+combSort(arr.copy())
 
-# print("\nPigeon Hole Sort")
-# pigeonHoleSort(arr.copy())
+print("\nPigeon Hole Sort")
+pigeonHoleSort(arr.copy())
 
 print("\nPostman Sort")
 postManSort(arr.copy())
