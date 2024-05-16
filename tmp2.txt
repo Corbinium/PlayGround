@@ -1,0 +1,43 @@
+Blight: Needle Blight - Twig Blight - Vine Blight
+Bugbear: Bugbear - Bugbear Chief
+Dragon: Dragon Wyrmling - Adult Dragon
+Drow:
+Drow - Drow Elite Warrior
+Drow Mage - Drow Priestess of Lolth
+Elk: Elk - Giant Elk
+Fungi: 
+Shrieker - Violet Fungus - Gas Spore
+Ghouls: Ghoul - Ghast
+Gith:
+Githyanki Warrior - Githyanki Knight
+Githzerai Monk - Githzerai Zerth
+Gnolls: Gnoll - Gnoll Pack Lord - Gnoll Fang of Yeenoghu
+Goblin: Goblin - Goblin Boss
+Grick: Grick - Grick Alpha
+Half Red Dragon Veteran
+Helmed Horror
+Hobgoblin: Hobgoblin - Hobgoblin Captin - Hobgoblin Warlord
+Kobold: Kobold - Winged Kobold
+Kuo-Toa: Kuo-Toa - Kuo-Toa Whip - Kuo-Toa Archpriest
+Lizardfolk: Lizardfolk - Lizardfolk Shaman - Lizard King/Queen
+Modrons: Monodrone - Duodrone - Tridrone - Quadrone - Pentadrone
+Mummies: Mummy - Mummy Lord
+Myconids: Myconid Sprout - Myconid Adult - Myconid Sovereign
+NPC:
+Bandit: Bandit - Bandit Captain || Berserker
+Cult: Cultist - Cult Fanatic
+Mage: Mage - Archmage
+Priest: Acolyte - Priest
+Commoner: Commoner - Noble || Druid || Gladiator || Veteran || Thug
+Guard: Guard - Knight - Shield Guardian
+Scout: Scout - Spy - Assassin
+Orc: Orc - Orc Eye of Gruumsh || Orog - Orc War chief
+Remorhaz: Young Remorhaz - Remorhaz
+Sahuagin: Sahuagin - Sahuagin Priestess - Sahuagin Baron
+Slaad: Slaad Tadpole - Red Slaad || Blue Slaad || Green Slaad || Gray Slaad || Death Slaad
+Spider: Spider - Giant Wolf Spider - Giant Spider - Phase Spider
+Vampire: Vampire Spawn - Vampire - Vampire (spellcaster) || Vampire (warrior)
+Wight - Wraith
+Wolf - Dire Wolf - Winter Wolf
+Yuan-Ti: Yuan-Ti Pureblood - Yuan-Ti Malison - Yuan-Ti Abomination
+Zombies: Zombie - Ogre Zombie
