@@ -9,6 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  file_picker: ^8.0.3
+  csv: ^6.0.0
+  fl_chart: ^0.68.0
+  scidart: ^0.0.2-dev.12
+  # Already possesed by internal website
+  resizable_widget: ^1.0.5
+  riverpod: 2.3.6
+  flutter_riverpod: 2.3.6
+  pluto_grid:
+    git: https://github.com/bosskmk/pluto_grid.git
+
 
 dev_dependencies:
   flutter_test:
