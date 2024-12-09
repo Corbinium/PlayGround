@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_application_1/icekat/icekat_math.dart';
 
 class SampleModel {
@@ -24,7 +25,7 @@ class SampleModel {
   SampleModel();
   SampleModel.basic(this.name, this.xFull, this.yFull, this.start, this.end, this.xAxis, this.yAxis, this.ySpline, this.yLinear, this.yLinearResidual, this.yMin, this.yMax, this.m, this.b, this.s);
 
-  void setStartEnd(double start, double end) {
+  Future<bool> setStartEnd(double start, double end) async {
     this.start = start;
     this.end = end;
 
@@ -37,7 +38,7 @@ class SampleModel {
       }
     }
 
-    ySpline = cubicSpline(xAxis, yAxis);
+    ySpline = await cubicSpline(xAxis, yAxis);
 
     List<double> xLimited = [];
     List<double> yLimited = [];
@@ -51,5 +52,7 @@ class SampleModel {
     s = linearMap[2];
     yLinear = linearCurve(xAxis, m, b);
     yLinearResidual = List.generate(xAxis.length, (i) => yLinear[i] - yAxis[i]);
+
+    return true;
   }
 }

@@ -3,7 +3,7 @@ import 'package:scidart/numdart.dart' as nd;
 import 'dart:math';
 
 
-List<double> cubicSpline(List<dynamic> xAxis, List<dynamic> yAxis) {
+Future<List<double>> cubicSpline(List<dynamic> xAxis, List<dynamic> yAxis) async {
   nd.PolyFit fit = nd.PolyFit(nd.Array(List<double>.from(xAxis)), nd.Array(List<double>.from(yAxis)), 3);
   return xAxis.map((x) => fit.predict(x)).toList();
 }

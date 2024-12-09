@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/icekat/icekat.dart';
-import 'package:flutter_application_1/orbital_prediction.dart';
+import 'package:flutter_application_1/spline/spline_interpreter.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
@@ -22,7 +21,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Icekat(),
+        body: SplineInterpreter(),
       ),
     );
   }

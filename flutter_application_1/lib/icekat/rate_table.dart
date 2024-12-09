@@ -47,18 +47,19 @@ List<PlutoColumn> rateCols = [
 
 class RateTable extends StatelessWidget {
   final List<SampleModel> model;
-  RateTable(this.model);
+  final double subtraction;
+  RateTable(this.model, this.subtraction);
   @override
   Widget build(BuildContext context) {
     List<PlutoRow> rows = [];
     for (int i = 0; i < model.length; i++) {
-      rows.add(rateRowMapper(model[i].name, model[i].m, model[i].start, model[i].end));
+      rows.add(rateRowMapper(model[i].name, model[i].m.abs() - subtraction.abs(), model[i].start, model[i].end));
     }
 
     return PlutoGrid(
       key: Key('${model.map((s) => s.name)}'),
       columns: rateCols, 
-      rows: rows
+      rows: rows,
     );
   }
 }

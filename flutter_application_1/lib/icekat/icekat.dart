@@ -2,16 +2,18 @@ import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:resizable_widget/resizable_widget.dart';
+
 import 'package:flutter_application_1/icekat/cv_graph_model.dart';
 import 'package:flutter_application_1/icekat/drop_down_builder.dart';
 import 'package:flutter_application_1/icekat/rate_table.dart';
 import 'package:flutter_application_1/icekat/sample_model.dart';
-import 'package:flutter_application_1/icekat/stock.dart';
-import 'package:flutter_application_1/icekat/widget_stock.dart';
-import 'package:resizable_widget/resizable_widget.dart';
+
+
 
 class Icekat extends StatefulWidget {
   Icekat({Key? key}) : super(key: key);
@@ -19,9 +21,9 @@ class Icekat extends StatefulWidget {
   IcekatState createState() => IcekatState();
 }  
 class IcekatState extends State<Icekat> { 
-  List<SampleModel> csvMap = basicData;
+  List<SampleModel> sampleModels = [];
 
-  String yAxisSample = basicData[0].name;
+  String yAxisSample = '';
   String subtraction = '';
   TextEditingController transformEquation = TextEditingController();
   TextEditingController timeMixToRead = TextEditingController();
@@ -29,10 +31,12 @@ class IcekatState extends State<Icekat> {
   TextEditingController pEC50pIC50_top = TextEditingController();
   TextEditingController pEC50pIC50_hill = TextEditingController();
 
-  TextEditingController startTime = TextEditingController(text: '${basicData[0].start}');
-  TextEditingController endTime = TextEditingController(text: '${basicData[0].end}');
+  TextEditingController startTime = TextEditingController(text: '0');
+  TextEditingController endTime = TextEditingController(text: '1');
 
   TextEditingController hitThreshold = TextEditingController(text: '1.0');
+
+  bool modelCV = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,35 +44,30 @@ class IcekatState extends State<Icekat> {
     double height = MediaQuery.of(context).size.height;
     double inputWidth = (100~/(width/308))/100.0;
     List<double> ratios = [inputWidth, 0.76-inputWidth, 0.24];
-    List<String> sampleOptions = csvMap.map<String>((s) => s.name).toList();
 
-    CVGraphModel cvGraph = CVGraphModel(csvMap, (subtraction == '') ? 0 : csvMap.firstWhere((s) => s.name == subtraction).m);
-    int yAxisIndex = csvMap.indexWhere((s) => s.name == yAxisSample);
-
-    // List<double> ySpline = cubicSpline(csvMap[yAxisSample]!['xAxis'], csvMap[yAxisSample]!['yAxis']);
-    // List<double> linearMap = LinearBestFitLimited(csvMap[yAxisSample]!['xAxis'], ySpline);
-    // List<double> yLinear = List.generate(csvMap[yAxisSample]!['xAxis'].length, (i) => csvMap[yAxisSample]!['xAxis'][i]*linearMap[0] + linearMap[1]);
-    // List<double> yLinearResidual = List.generate(csvMap[yAxisSample]!['xAxis'].length, (i) => yLinear[i] - csvMap[yAxisSample]!['yAxis'][i]);
+    List<String> sampleOptions = sampleModels.map<String>((s) => s.name).toList();
+    double subM = (subtraction == '') ? 0 : sampleModels.firstWhere((s) => s.name == subtraction).m;
+    CVGraphModel? cvGraph = (sampleModels.isEmpty) ? null : CVGraphModel(sampleModels, subM, modelCV);
+    int? yAxisIndex = (sampleModels.isEmpty) ? null : sampleModels.indexWhere((s) => s.name == yAxisSample);
     
     return Container(
       margin: EdgeInsets.all(20),
       color: Colors.white,
       child: ResizableWidget(
-        key: Key('$yAxisSample - $csvMap - $subtraction - ${startTime.text} - ${endTime.text}'),
+        key: Key('$yAxisSample - $sampleModels - $subtraction - ${startTime.text} - ${endTime.text}'),
         percentages: ratios,
         children: [
           Column(
             children: [
               TextButton(
-                onPressed: uploadCsv,
-                child: Text('Upload File')
+                onPressed: uploadCSV,
+                child: Text('Download CSV')
               ),
               Text('Model: Michaelis-Menten'),
-              // DropDownBuilder(onChanged: (val) { model = val; setState(() {}); }, items: modelOptions, ),
               Row(
                 children: [
                   Text('Choose Y-Axis Sample:  '),
-                  DropDownBuilder(key: Key('${sampleOptions} - yaxis'), onChanged: (val) { yAxisSample = val; startTime.text = '${csvMap[yAxisIndex].start}'; endTime.text = '${csvMap[yAxisIndex].end}'; setState(() {}); }, items: sampleOptions, initValue: yAxisSample),
+                  DropDownBuilder(key: Key('${sampleOptions} - yaxis'), onChanged: (val) { yAxisSample = val; yAxisIndex = sampleModels.indexWhere((e) => e.name == yAxisSample); startTime.text = '${sampleModels[yAxisIndex!].start}'; endTime.text = '${sampleModels[yAxisIndex!].end}'; setState(() {}); }, items: sampleOptions, initValue: yAxisSample),
                 ]
               ),
               Row(
@@ -77,10 +76,6 @@ class IcekatState extends State<Icekat> {
                   DropDownBuilder(key: Key('${sampleOptions} - subtract'), onChanged: (val) { subtraction = val; setState(() {}); }, items: ["", ...sampleOptions], initValue: subtraction),
                 ]
               ),
-              // Text('Transform Equation'),
-              // TextField(controller: transformEquation),
-              // Text('Time Between Mixing and First Read'),
-              // TextField(controller: timeMixToRead),
               Row(
                 children: [
                   Text('Start Time:  '),
@@ -97,22 +92,15 @@ class IcekatState extends State<Icekat> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () { 
-                      for (int i = 0 ; i < csvMap.length; i++) { 
-                        csvMap[i].setStartEnd(csvMap[i].xFull[0], csvMap[i].xFull.last);
-                      } 
-                      startTime.text = '${csvMap[yAxisIndex].start}';
-                      endTime.text = '${csvMap[yAxisIndex].end}';
-                      setState(() {});
-                    },
+                    onPressed: resetTimes,
                     child: Text('Reset Times')
                   ),
                   TextButton(
-                    onPressed: () { csvMap[yAxisIndex].setStartEnd(double.parse(startTime.text), double.parse(endTime.text)); setState(() {}); },
+                    onPressed: () { sampleModels[yAxisIndex!].setStartEnd(double.parse(startTime.text), double.parse(endTime.text)); setState(() {}); },
                     child: Text('Update Graph')
                   ),
                 ]
-              )
+              ),
             ]
           ),
           Column(
@@ -124,14 +112,14 @@ class IcekatState extends State<Icekat> {
                     height: height/2,
                     child: LineChart(
                       LineChartData(
-                        minX: csvMap[yAxisIndex].xAxis[0] - (csvMap[yAxisIndex].xAxis.last * 0.05),
-                        maxX: csvMap[yAxisIndex].xAxis.last + (csvMap[yAxisIndex].xAxis.last * 0.05),
+                        minX: (yAxisIndex == null) ? 0 : sampleModels[yAxisIndex!].xAxis[0] - (sampleModels[yAxisIndex!].xAxis.last * 0.05),
+                        maxX: (yAxisIndex == null) ? 0 : sampleModels[yAxisIndex!].xAxis.last + (sampleModels[yAxisIndex!].xAxis.last * 0.05),
                         lineTouchData: standardLineTouchTooltip,
                         titlesData: standardChartTitles,
-                        lineBarsData: [
+                        lineBarsData: (yAxisIndex == null) ? [] : [
                           LineChartBarData(
                             color: Colors.grey.shade600,
-                            spots: dotOnlyGraph(List.generate(csvMap[yAxisIndex].xAxis.length, (i) => FlSpot(csvMap[yAxisIndex].xAxis[i], csvMap[yAxisIndex].yAxis[i]))),
+                            spots: dotOnlyGraph(List.generate(sampleModels[yAxisIndex!].xAxis.length, (i) => FlSpot(sampleModels[yAxisIndex!].xAxis[i], sampleModels[yAxisIndex!].yAxis[i]))),
                             dotData: FlDotData(
                               show: true,
                               getDotPainter: (spot, d, line, i) => FlDotCirclePainter(
@@ -143,16 +131,16 @@ class IcekatState extends State<Icekat> {
                           LineChartBarData(
                             color: Colors.green,
                             dotData: const FlDotData(show: false),
-                            spots: List.generate(csvMap[yAxisIndex].xAxis.length, (i) => FlSpot(csvMap[yAxisIndex].xAxis[i], csvMap[yAxisIndex].ySpline[i])),
+                            spots: List.generate(sampleModels[yAxisIndex!].xAxis.length, (i) => FlSpot(sampleModels[yAxisIndex!].xAxis[i], sampleModels[yAxisIndex!].ySpline[i])),
                           ),
                           LineChartBarData(
                             color: Colors.red,
                             dotData: const FlDotData(show: false),
-                            spots: List.generate(csvMap[yAxisIndex].xAxis.length, (i) => FlSpot(csvMap[yAxisIndex].xAxis[i], csvMap[yAxisIndex].yLinear[i])),
+                            spots: List.generate(sampleModels[yAxisIndex!].xAxis.length, (i) => FlSpot(sampleModels[yAxisIndex!].xAxis[i], sampleModels[yAxisIndex!].yLinear[i])),
                           )
                         ]
                       ),
-                      key: Key("$yAxisSample - $subtraction - ${csvMap.map((s) => s.name)}"),
+                      key: Key("$yAxisSample - $subtraction - ${sampleModels.map((s) => s.name)}"),
                     ),
                   )),
                   Expanded(child: Container(
@@ -160,13 +148,13 @@ class IcekatState extends State<Icekat> {
                     height: height/2,
                     child: LineChart(
                       LineChartData(
-                        minX: cvGraph.cAxis[0] - (cvGraph.cAxis.last * 0.05),
-                        maxX: cvGraph.cAxis.last + (cvGraph.cAxis.last * 0.05),
-                        minY: cvGraph.vMin - (cvGraph.vMax * 0.05),
-                        maxY: cvGraph.vMax + (cvGraph.vMax * 0.05),
+                        minX: (cvGraph == null) ? 0 : cvGraph.cAxis[0] - (cvGraph.cAxis.last * 0.05),
+                        maxX: (cvGraph == null) ? 0 : cvGraph.cAxis.last + (cvGraph.cAxis.last * 0.05),
+                        minY: (cvGraph == null) ? 0 : cvGraph.vMin - (cvGraph.vMax * 0.05),
+                        maxY: (cvGraph == null) ? 0 : cvGraph.vMax + (cvGraph.vMax * 0.05),
                         lineTouchData: standardLineTouchTooltip,
                         titlesData: standardChartTitles,
-                        lineBarsData: [
+                        lineBarsData: (cvGraph == null) ? [] : [
                           LineChartBarData(
                             color: Colors.grey.shade600,
                             spots: dotOnlyGraph(List.generate(cvGraph.cAxis.length, (i) => FlSpot(cvGraph.cAxis[i], cvGraph.vAxis[i]))),
@@ -178,12 +166,12 @@ class IcekatState extends State<Icekat> {
                               )
                             ),
                           ),
-                          LineChartBarData(
+                          (cvGraph.vMM.isNotEmpty) ? LineChartBarData(
                             color: Colors.black,
-                            spots: List.generate(cvGraph.cAxis.length, (i) => FlSpot(cvGraph.cAxis[i], cvGraph.vMM[i])),
+                            spots: List.generate(cvGraph.cAxis.length, (i) => FlSpot(cvGraph.cAxis[i], cvGraph.vMM![i])),
                             dotData: const FlDotData(show: false),
-                          ),
-                          LineChartBarData(
+                          ) : LineChartBarData(),
+                          (cvGraph.vMM.isNotEmpty) ? LineChartBarData(
                             color: Colors.black,
                             spots: [FlSpot(cvGraph.km, cvGraph.vMax/2)],
                             dotData: FlDotData(
@@ -193,10 +181,10 @@ class IcekatState extends State<Icekat> {
                                 color: Colors.black,
                               )
                             ),
-                          ),
+                          ) : LineChartBarData(),
                         ],
                       ),
-                      key: Key("$yAxisSample - $subtraction - ${csvMap.map((s) => s.name)}"),
+                      key: Key("$yAxisSample - $subtraction - ${sampleModels.map((s) => s.name)}"),
                     ),
                   )),
                 ]
@@ -206,14 +194,14 @@ class IcekatState extends State<Icekat> {
                 width: width*ratios[1],
                 child: LineChart(
                   LineChartData(
-                    minX: csvMap[yAxisIndex].xAxis[0] - (csvMap[yAxisIndex].xAxis.last * 0.05),
-                    maxX: csvMap[yAxisIndex].xAxis.last + (csvMap[yAxisIndex].xAxis.last * 0.05),
+                    minX: (yAxisIndex == null) ? 0 : sampleModels[yAxisIndex!].xAxis[0] - (sampleModels[yAxisIndex!].xAxis.last * 0.05),
+                    maxX: (yAxisIndex == null) ? 0 : sampleModels[yAxisIndex!].xAxis.last + (sampleModels[yAxisIndex!].xAxis.last * 0.05),
                     lineTouchData: standardLineTouchTooltip,
                     titlesData: standardChartTitles,
-                    lineBarsData: [
+                    lineBarsData: (yAxisIndex == null) ? [] : [
                       LineChartBarData(
                         color: Colors.grey.shade600,
-                        spots: dotOnlyGraph(List.generate(csvMap[yAxisIndex].xAxis.length, (i) => FlSpot(csvMap[yAxisIndex].xAxis[i], csvMap[yAxisIndex].yLinearResidual[i]))),
+                        spots: dotOnlyGraph(List.generate(sampleModels[yAxisIndex!].xAxis.length, (i) => FlSpot(sampleModels[yAxisIndex!].xAxis[i], sampleModels[yAxisIndex!].yLinearResidual[i]))),
                         dotData: FlDotData(
                           show: true,
                           getDotPainter: (spot, d, line, i) => FlDotCirclePainter(
@@ -224,7 +212,6 @@ class IcekatState extends State<Icekat> {
                       ),
                     ]
                   ),
-                  // key: Key("$yAxisSample - $subtraction - ${csvMap.keys.toList()}"),
                 ),
               )),
             ],
@@ -232,14 +219,28 @@ class IcekatState extends State<Icekat> {
           Column(
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  List<List<dynamic>> csvList = [['Sample', 'Slope']];
+                  for (int i = 0; i < sampleModels.length; i++) {
+                    csvList.add([sampleModels[i].name, sampleModels[i].m]);
+                  }
+                  String csv = const ListToCsvConverter().convert(csvList);
+
+                  Uint8List bytes = utf8.encode(csv);
+                  await FileSaver.instance.saveFile(
+                    name: 'icekatSamples',
+                    bytes: bytes,
+                    ext: 'csv',
+                    mimeType: MimeType.csv,
+                  );
+                },
                 child: Text('Download CSV')
               ),
               TextButton(
                 onPressed: () {
                   String csv = 'Sample\tSlope';
-                  for (int i = 0; i < csvMap.length; i++) {
-                    csv += "\n${csvMap[i].name}\t${csvMap[i].m}";
+                  for (int i = 0; i < sampleModels.length; i++) {
+                    csv += "\n${sampleModels[i].name}\t${sampleModels[i].m}";
                   }
                   Clipboard.setData(ClipboardData(text: csv));
                 },
@@ -248,7 +249,7 @@ class IcekatState extends State<Icekat> {
               Expanded(child: Container(
                 padding: EdgeInsets.all(10),
                 width: width*ratios[2],
-                child: RateTable(csvMap)
+                child: RateTable(sampleModels, subM)
               )),
             ]
           ),
@@ -264,16 +265,29 @@ class IcekatState extends State<Icekat> {
     return spots;
   }
 
-  void uploadCsv() async {
+  void uploadCSV() async { 
     FilePickerResult? inFile = await FilePicker.platform.pickFiles(dialogTitle: "Pick a file");
     var csvList = CsvToListConverter().convert(utf8.decode(inFile!.files.single.bytes!.toList()));
-    csvList.removeAt(1);
+    debugPrint(csvList[0].toString());
+    yAxisSample = csvList[0][1];
+    subtraction = '';
+    startTime.text = '${csvList[1][0]}';
+    endTime.text = '${csvList.last[0]}';
 
-    csvMap = [];
+    setState(() {
+      sampleModels = [];
+      modelCV = false;
+    });
+
     for (int c = 1; c < csvList[0].length; c++) {
+      await Future.delayed(Duration(microseconds: 1));
+
       SampleModel sample = SampleModel();
       if (csvList[0][c] == '') { continue; }
       sample.name = csvList[0][c];
+      setState(() {
+        yAxisSample = sample.name;
+      });
       for (int r = 1; r < csvList.length; r++) {
         sample.xFull.add(csvList[r][0]);
         sample.yFull.add(csvList[r][c]);
@@ -282,13 +296,53 @@ class IcekatState extends State<Icekat> {
       }
       sample.setStartEnd(sample.xFull[0], sample.xFull.last);
 
-      csvMap.add(sample);
-      debugPrint('complete ${csvList[0][c]}');
+      sampleModels.add(sample);
     }
-    
-    yAxisSample = csvList[0][1];
-    subtraction = '';
-    debugPrint('complete');
-    setState(() {});
+
+    setState(() {
+      modelCV = true;
+    });
+  }
+
+  void resetTimes() async { 
+    for (SampleModel s in sampleModels) {
+      if (s.start != s.xFull[0] || s.end != s.xFull.last) {
+        await s.setStartEnd(s.xFull[0], s.xFull.last);
+      }
+      setState(() {
+        yAxisSample = s.name;
+        startTime.text = '${s.start}';
+        endTime.text = '${s.end}';
+      });
+      await Future.delayed(const Duration(microseconds: 1));
+    }
+  }
+}
+
+FlTitlesData standardChartTitles = FlTitlesData(
+  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 15, getTitlesWidget: (value, meta) => (value != meta.max && value != meta.min) ? Text(stringFromDouble(value), textAlign: TextAlign.end) : Container())),
+  leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 60, getTitlesWidget: (value, meta) => (value != meta.max && value != meta.min) ? Text(stringFromDouble(value), textAlign: TextAlign.end) : Container())),
+  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+);
+
+LineTouchData standardLineTouchTooltip = LineTouchData(
+  getTouchLineStart: (barData, i) => 0,
+  getTouchLineEnd: (barData, i) => 0,
+  touchTooltipData: LineTouchTooltipData(
+    fitInsideHorizontally: true,
+    fitInsideVertically: true,
+    getTooltipColor: (touchedSpot) => Colors.grey.withOpacity(0.5),
+    getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
+      return LineTooltipItem('(${stringFromDouble(spot.x)}, ${stringFromDouble(spot.y)})', TextStyle(color: spot.bar.color));
+    }).toList(),
+  ),
+);
+
+String stringFromDouble(double value) {
+  if ((0.01 <= value.abs() && value.abs() < 100) || value == 0) {
+    return '${(value*1000).toInt()/1000}';
+  } else {
+    return value.toStringAsExponential(2);
   }
 }
